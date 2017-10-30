@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="nodle.js"></script>
+</head>
+
+<body>
+    <script>
+        let container = new nodle('div#container>h1+p', {
+            'div': {
+                // 处理css内容，驼峰写法
+                // 支持当前浏览器支持的css样式，去掉多余的样式内容
+                // 单位换算功能
+                'css': {
+                    'color': function () {
+                        return "red";
+                    },
+                    // 继承属性
+                    '$background-color': function (parent) {
+                        // 将会获取到父级的该属性值
+                    },
+                    "font-size": '15pt'
+                },
+                // html的文本内容，如果是html标签将会进行转义
+                'text': function () {
+
+                },
+                // 将会覆盖zencode 中的 child 内容
+                'html': function () {
+                    // 用作动态插值使用，模板组合时候可以使用
+                    return new nodle('div>span', {}, this);
+                },
+                // data属性的内容
+                'data': {
+
+                },
+                // 额外的属性列表，如果有同名的将会覆盖
+                'attr': {
+
+                },
+                // 数据值
+                'store': {
+
+                }
+            }
+        }, "#content")
+    </script>
+</body>
+
+</html>
