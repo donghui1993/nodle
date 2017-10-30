@@ -19,6 +19,9 @@ class nodle {
         this.zencode = zencode;
         this.rebuild();
         this.spliter(this.zentree);
+        if(typeof parent == 'string'){
+            parent = document.querySelector(parent);
+        }
         this.treeCreate(this.zentree, parent);
     }
     /**
@@ -102,8 +105,12 @@ class nodle {
             var cdom;
             Loop.looptimes(result.size, () => {
                 cdom = document.createElement(result.tag);
-                cdom.classList.add(...result.class);
-                cdom.setAttribute('id', result.id)
+                if(result.class.length>0){
+                    cdom.classList.add(...result.class);
+                }
+                if(result.id){
+                    cdom.setAttribute('id', result.id)
+                }
                 Loop.keyloop(result.prop, (key, val) => {
                     cdom.setAttribute(key, val)
                 });

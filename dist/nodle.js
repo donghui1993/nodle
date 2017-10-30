@@ -135,6 +135,9 @@ var nodle = /** @class */ (function () {
         this.zencode = zencode;
         this.rebuild();
         this.spliter(this.zentree);
+        if (typeof parent == 'string') {
+            parent = document.querySelector(parent);
+        }
         this.treeCreate(this.zentree, parent);
     }
     /**
@@ -220,8 +223,12 @@ var nodle = /** @class */ (function () {
             var cdom;
             loop_1.Loop.looptimes(result.size, function () {
                 cdom = document.createElement(result.tag);
-                (_a = cdom.classList).add.apply(_a, result.class);
-                cdom.setAttribute('id', result.id);
+                if (result.class.length > 0) {
+                    (_a = cdom.classList).add.apply(_a, result.class);
+                }
+                if (result.id) {
+                    cdom.setAttribute('id', result.id);
+                }
                 loop_1.Loop.keyloop(result.prop, function (key, val) {
                     cdom.setAttribute(key, val);
                 });
