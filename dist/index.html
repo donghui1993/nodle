@@ -11,8 +11,9 @@
 
 <body>
     <script>
-        let container = new nodle('div#container>h1+p', { // TODO: options 未完成
-            'div': {
+        let container = new nodle('ul>li{这是内容}[style=color:blue]*4', { // TODO: options 未完成
+            'nodle': {}, // snippet配置内容，该内容会继承到余下的内容中去
+            '#container': {
                 // 处理css内容，驼峰写法
                 // 支持当前浏览器支持的css样式，去掉多余的样式内容
                 // 单位换算功能
@@ -24,9 +25,9 @@
                     '$background-color': function (parent) {
                         // 将会获取到父级的该属性值
                     },
-                    "font-size": '15pt'
+                    "font-size": '15px'
                 },
-                // html的文本内容，如果是html标签将会进行转义
+                // html的文本内容将会进行转义
                 'text': function () {
 
                 },

@@ -22,4 +22,7 @@ export namespace regexps {
     export function gt(char) {
         return char == ">";
     }
+    export function hasSamelevel(ncode) {
+        return ncode.indexOf('+') != -1;
+    }
 }

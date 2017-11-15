@@ -19,7 +19,7 @@ export default class CharacterAnalysis {
 
     wash() {
 
-        strings.testParenthes(this.zencode);
+        strings.testBracket(this.zencode);
         this.gt2plus();
         this.doubleparenttheses();
         // TODO: 如何将括号和元素组合变为正确的父子级关系
@@ -36,7 +36,7 @@ export default class CharacterAnalysis {
      */
     atStartParenthes() {
         if (this.zencode.startsWith('(')) {
-            let end = strings.findEndParenthese(this.zencode);
+            let end = strings.findEndBracket(this.zencode);
             if (this.zencode[end + 1] == "+") {//如果该值为 + 号，则说明该区域内容为同级元素，不需要去除
                 return;
             }
@@ -73,7 +73,7 @@ export default class CharacterAnalysis {
         let index = strings.findCharIndex(this.zencode, /\(/);
         let backindex = [];
         Loop.loop(index, (val) => { // 查询对应的反括号的位置
-            backindex.push(strings.findEndParenthese(this.zencode, val));
+            backindex.push(strings.findEndBracket(this.zencode, val));
         });
 
         index = Arrays.zipper(index, backindex);
@@ -147,7 +147,7 @@ export default class CharacterAnalysis {
         if (match) {
             let len = match[0].length; // 匹配的多括号长度
             let from = match.index; // 第一次匹配的位置
-            let end = strings.findEndParenthese(this.zencode, from);
+            let end = strings.findEndBracket(this.zencode, from);
             if (end) { // 查询到end位置
                 let str = "(" + this.zencode.substring(from + len, end - len + 1) + ")" + this.zencode.substring(end + 1);
                 if (from != 0) { // 不是从0开始需要补足之前的内容

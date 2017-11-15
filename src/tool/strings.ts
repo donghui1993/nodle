@@ -5,8 +5,8 @@ export namespace strings {
      * 查找闭括号位置,应该从左括号开始
      * 如果查询到则返回字符串的index值，否则返回0
      */
-    export function findEndParenthese(str :string, from = 0,left="(",right=')') {
-        strings.testParenthes(str);
+    export function findEndBracket(str :string, from = 0,left="(",right=')') {
+        strings.testBracket(str);
         let size = -1;//当前左括号计数器
         let endcursor = 0;
         Loop.loop(str, (char, index, any) => {
@@ -25,7 +25,7 @@ export namespace strings {
     /**
      * 测试括号是否数量一致
      */
-   export function testParenthes(str) {
+   export function testBracket(str) {
         let left = str.match(/\(/g)||"";
         let rigth = str.match(/\)/g)||"";
         if (left.length !== rigth.length) {

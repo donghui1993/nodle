@@ -25,14 +25,14 @@ export namespace propanalysis {
     }
     function parseText(str) {
         return [strings.findCharIndex(str, /\{/)[0]].map((from) => {
-            let end = strings.findEndParenthese(str, from, '{', '}');
+            let end = strings.findEndBracket(str, from, '{', '}');
             return str.substring(from + 1, end);
         })
     }
     function parseProp(str) {
         let prop = {};
         let propsArray = strings.findCharIndex(str, /\[/).map((from) => {
-            let end = strings.findEndParenthese(str, from, '[', ']');
+            let end = strings.findEndBracket(str, from, '[', ']');
             return str.substring(from + 1, end);
         });
         Loop.loop(propsArray, (val: string, index) => {

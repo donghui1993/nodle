@@ -1,135 +1,149 @@
-/**
- * 类 zencoding语法的dom库
- * 分为 zencode -->基本的 dom 树语法
- * 
- */
-
-
-
 import CharacterAnalysis from './config/characteranalysis'
 import { regexps } from './tool/regexps';
 import { strings } from './tool/strings';
 import { propanalysis } from './config/propanalysis';
 import { Loop } from './tool/loop';
+import Nnode from './nodle/Nnode';
 class nodle {
-    zencode: string;
-    zentree = {};
-    zendom;
-    constructor(zencode, options, parent) {
-        this.zencode = zencode;
+    ncode;
+    nNode = new Nnode();
+    constructor(ncode, options, parent) {
+        this.ncode = ncode;
         this.rebuild();
-        this.spliter(this.zentree);
-        if(typeof parent == 'string'){
+        this.nLoad(this.ncode, this.nNode);
+        if (typeof parent == 'string') {
             parent = document.querySelector(parent);
         }
-        this.treeCreate(this.zentree, parent);
+        this.nNodeCreate(this.nNode, parent);
     }
     /**
      * 用来重新构建传递进来的类zen coding语法字符串内容，将其整理为标准内容
      */
     rebuild() {
-        this.zencode = CharacterAnalysis.analyze(this.zencode);
+        this.ncode = CharacterAnalysis.analyze(this.ncode);
+    }
+    nLoad(ncode, nNode = new Nnode()) {
+        let preCode = this.samelevel(ncode);
+        if (preCode.length == 1) { // 这里是剥离单时候使用的内容
+            return this.nSplitter(nNode, ncode);
+        } else {
+            preCode.forEach((partCode) => {
+                nNode.children.push(this.nLoad(partCode));
+                return partCode;
+            })
+        }
+        if (!nNode.dom) { // 不需要保留未使用的key 值
+            delete nNode.dom;
+        }
+        return nNode;
+    }
+    // 同级关系解构
+    samelevel(ncode) {
+        let codepart = [];
+        if (!regexps.hasSamelevel(ncode)) {
+            codepart.push(ncode);
+        } else {
+            let len = ncode.length,
+                cursor = 0
+            for (let i = 0; i < len; i++) {
+                let char = ncode[i];
+                if (char == '+') {
+                    let ncodepart = ncode.substring(cursor, i);
+                    cursor = i;
+                    cursor++;
+                    ncodepart != '+' && codepart.push(ncodepart);
+                } else if (char == '>') {
+                    let ncodepart = ncode.substring(cursor, len);
+                    cursor = len;
+                    codepart.push(ncodepart);
+                    break;
+                } else if (char == '(') {
+                    let ebIndex = strings.findEndBracket(ncode, i );
+                    let ncodepart = ncode.substring(cursor + 1, ebIndex); // 顺带去掉括号内容
+                    codepart.push(ncodepart);
+                    i = ebIndex;
+                    cursor = ++i;
+                    cursor++; // 排除一个)所占的位置
+                }
+            }
+            if (cursor < len - 1) { // 如果循环结束cursor还未到末尾的话说明漏了最后部分的内容
+                let ncodepart = ncode.substring(cursor, len);
+                codepart.push(ncodepart);
+            }
+        }
+        return codepart;
     }
     /**
-     * 解构器
+     * 解构器,不存在兄弟关系的内容
      */
-    spliter(tree, str = this.zencode) {
-        if (regexps.isSimple(str)) {
-            propanalysis.parse(str, tree);
-            return tree;
-        }
-        if (!tree.child) {
-            tree.child = [];
-        }
-        if (str[0] == '(') { // 如果是 (  strings .. ) 这种情况
-            if (strings.findEndParenthese(str) == str.length - 1) {
-                return this.spliter(tree, str.substring(1, str.length - 1));
+    nSplitter(nNode:Nnode, ncode) {
+        if (ncode[0] == '(') {
+            //查询末尾括号位置是否和
+            let end = strings.findEndBracket(ncode, 0);
+            if (end == ncode.length - 1) {
+                ncode = ncode.substring(1, ncode.length - 1);
             }
         }
-        let start = 0, // 上一次游标开始位置
-            end = 0, // 上一次游标结束为止
-            cursor = 0, // 游标当前位置
-            startPoint = false,
-            parseBreacket = 0;
+        if (!/[\(\+>]/.test(ncode)) {
+            propanalysis.parse(ncode,nNode);
+            return nNode;
+        }
+        let len = ncode.length,
+            cursor = 0
+        // 是否首尾括号内容
 
-        for (; cursor < str.length; cursor++) {
-            let char = str[cursor]; // 当前的字符内容
-            if (regexps.bracket(char) == 0) {
-                end = strings.findEndParenthese(str, cursor + 1) + cursor;
-                let part = str.substring(cursor + 1, end);
-                // 重置开始位置
-                start = cursor;
-                tree.child.push(this.spliter({}, part));
-            }
-            else if (regexps.gt(char) || regexps.bracket(str[cursor + 1]) == 0) {
-                // 左侧归档树内容
-                propanalysis.parse(str.substring(start, cursor), tree);
-                let child = this.spliter({}, str.substring(cursor + 1));
-                return tree.child.push(child), tree;
-            }
-            // 同级兄弟元素处理
-            else if (regexps.viv(char)) {
-                /**
-                 * 如果遇到 + 号，则需要从当前位置到start的位置将值切下。右侧单独进入循环内容
-                 */
-                if (startPoint) {
-                    startPoint = false;
-                } else {
-                    // 左边的部分可能已经被处理过了
-                    if (parseBreacket > 0) {
-                        parseBreacket--
-                    } else {
-                        tree.child.push(this.spliter({}, str.substring(start, cursor)));
-                    }
-                }
-                start = cursor + 1;
-                // 如何理解 div + div + div + div的结构呢
-                // FIXME: 右边部分可能还是存在兄弟结构
-                tree.child.push(this.spliter({}, str.substring(start)));
+        for (let i = 0; i < len; i++) {
+            let char = ncode[i];
+            if (char == '>') {
+                // 左边归为父元素，
+                propanalysis.parse(ncode.substring(cursor, i),nNode);
+                // 右边归为子元素
+                nNode.children.push(this.nLoad(ncode.substring(i + 1, len)))
+                return nNode;
+            } else if (char == '(') {
+                let end = strings.findEndBracket(ncode, i);
+
+            } else if (char == '+') { // 同级关系
+                return this.nLoad(ncode)
             }
         }
-        if (tree.child && tree.child.length == 0) {
-            delete tree.child;
-        }
-        return tree;
+        return nNode;
     }
     /**
      * 动态组装
      */
-    treeCreate(result, parent) {
-        if (result instanceof Array) {
-            for (var i = 0; i < result.length; i++) {
-                this.treeCreate(result[i], parent);
+    nNodeCreate(nNode:Nnode|Array<Nnode>, parent) {
+        if (nNode instanceof Array) {
+            for (var i = 0; i < nNode.length; i++) {
+                this.nNodeCreate(nNode[i], parent);
             }
         } else {
-            var cdom;
-            Loop.looptimes(result.size, () => {
-                cdom = document.createElement(result.tag);
-                if(result.class.length>0){
-                    cdom.classList.add(...result.class);
+            var cdom: HTMLElement;
+            Loop.looptimes(nNode.size, () => {
+                cdom = document.createElement(nNode.tag);
+                if (nNode.class.length > 0) {
+                    cdom.classList.add(...nNode.class);
                 }
-                if(result.id){
-                    cdom.setAttribute('id', result.id)
+                if (nNode.id) {
+                    cdom.setAttribute('id', nNode.id)
                 }
-                Loop.keyloop(result.prop, (key, val) => {
+                Loop.keyloop(nNode.prop, (key, val) => {
                     cdom.setAttribute(key, val)
                 });
-                cdom.innerText = result.text;
+                cdom.innerText = nNode.text;
                 if (parent instanceof HTMLElement) {
                     parent.appendChild(cdom);
                 }
-                if (!this.zendom) {
-                    this.zendom = cdom;
-                }
             });
-            if (result.child) {
-                this.treeCreate(result.child, cdom || parent)
+            if (nNode.children) {
+                this.nNodeCreate(nNode.children, cdom || parent)
             }
         }
     }
     /**
      * 附件工厂
      */
+    annex(){}
 }
 
 window['nodle'] = nodle;
