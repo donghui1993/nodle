@@ -4,12 +4,15 @@ import { strings } from './tool/strings';
 import { propanalysis } from './config/propanalysis';
 import { Loop } from './tool/loop';
 import Nnode from './nodle/Nnode';
+import Options from './config/options'
 class nodle {
     ncode;
     nNode = new Nnode();
+    options:Options;
     constructor(ncode, options, parent) {
         this.ncode = ncode;
         this.rebuild();
+        this.options = new Options(options);
         this.nLoad(this.ncode, this.nNode);
         if (typeof parent == 'string') {
             parent = document.querySelector(parent);
@@ -22,6 +25,11 @@ class nodle {
     rebuild() {
         this.ncode = CharacterAnalysis.analyze(this.ncode);
     }
+    /**
+     * 加载器
+     * @param ncode 
+     * @param nNode 
+     */
     nLoad(ncode, nNode = new Nnode()) {
         let preCode = this.samelevel(ncode);
         if (preCode.length == 1) { // 这里是剥离单时候使用的内容
@@ -32,12 +40,11 @@ class nodle {
                 return partCode;
             })
         }
-        if (!nNode.dom) { // 不需要保留未使用的key 值
-            delete nNode.dom;
-        }
         return nNode;
     }
-    // 同级关系解构
+    /**
+     * 同级关系解构
+     */ 
     samelevel(ncode) {
         let codepart = [];
         if (!regexps.hasSamelevel(ncode)) {
@@ -113,16 +120,20 @@ class nodle {
      * 动态组装
      */
     nNodeCreate(nNode:Nnode|Array<Nnode>, parent) {
+        var cdom: HTMLElement;
         if (nNode instanceof Array) {
             for (var i = 0; i < nNode.length; i++) {
                 this.nNodeCreate(nNode[i], parent);
             }
-        } else {
-            var cdom: HTMLElement;
+        } else if(nNode.size >0) {
+            // 装配options
+            this.options.find(nNode)
+
+
             Loop.looptimes(nNode.size, () => {
                 cdom = document.createElement(nNode.tag);
-                if (nNode.class.length > 0) {
-                    cdom.classList.add(...nNode.class);
+                if (nNode.classes.length > 0) {
+                    cdom.classList.add(...nNode.classes);
                 }
                 if (nNode.id) {
                     cdom.setAttribute('id', nNode.id)
@@ -134,7 +145,12 @@ class nodle {
                 if (parent instanceof HTMLElement) {
                     parent.appendChild(cdom);
                 }
+                if (nNode.children) {
+                    this.nNodeCreate(nNode.children, cdom || parent)
+                }
             });
+           
+        }else{
             if (nNode.children) {
                 this.nNodeCreate(nNode.children, cdom || parent)
             }

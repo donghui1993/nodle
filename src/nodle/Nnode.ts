@@ -3,6 +3,8 @@
  */
 
 export default class Nnode{
+    ncode:string
+
     // 子对象，创建dom时需要深层迭代
     children:Array<Nnode>  = [];
 
@@ -16,7 +18,7 @@ export default class Nnode{
     id:string
 
     // dom对象上的类名
-    class:Array<string>;
+    classes:Array<string>;
 
     //size
     size:number

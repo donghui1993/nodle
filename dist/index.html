@@ -11,43 +11,32 @@
 
 <body>
     <script>
-        let container = new nodle('ul>li{这是内容}[style=color:blue]*4', { // TODO: options 未完成
-            'nodle': {}, // snippet配置内容，该内容会继承到余下的内容中去
-            '#container': {
-                // 处理css内容，驼峰写法
-                // 支持当前浏览器支持的css样式，去掉多余的样式内容
-                // 单位换算功能
-                'css': {
-                    'color': function () {
-                        return "red";
-                    },
-                    // 继承属性
-                    '$background-color': function (parent) {
-                        // 将会获取到父级的该属性值
-                    },
-                    "font-size": '15px'
-                },
-                // html的文本内容将会进行转义
-                'text': function () {
-
-                },
-                // 将会覆盖zencode 中的 child 内容
-                'html': function () {
-                    // 用作动态插值使用，模板组合时候可以使用
-                    return new nodle('div>span', {}, this);
-                },
-                // data属性的内容
-                'data': {
-
-                },
-                // 额外的属性列表，如果有同名的将会覆盖
-                'attr': {
-
-                },
-                // 数据值
-                'store': {
-
+        let container = new nodle('ul#container>li.list.name{sss}>.childlist{name}', { // TODO: options 未完成
+            'li':{
+                'css':{
+                    "font-size":'20px'
                 }
+            },
+            '.list': {
+                // css 内容
+                'css': { "font-size": '15px' ,color:'blue'},
+                // class类
+                'classes':'name space',
+                // html的文本内容将会进行转义
+                'text': '这是内容', // 如果有子元素，该内容则不会填充
+                // 将会覆盖zencode 中的 child 内容
+                'html':undefined,
+                // data属性的内容 -data-name:'xxxx'
+                'data': {},
+                // 额外的属性列表，如果有同名的将会覆盖
+                'attr': {},
+                // 数据值 将被填充的值的内容
+                'store': {},
+                // 数据长度
+                "size":4
+            },
+            '.childlist':{
+                'size':4
             }
         }, "body")
     </script>
