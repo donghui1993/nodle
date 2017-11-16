@@ -25,7 +25,7 @@ export namespace Arrays {
         if (blen < alen) {
             left = arrA.slice(alen - blen);
         }
-        Loop.looptimes(times, (i) => {
+        Loop.times(times, (i) => {
             trueArr.push(arrA[i]);
             trueArr.push(arrB[i]);
         });
@@ -56,7 +56,7 @@ export namespace Arrays {
         Loop.loopsteps(arr.length + arr.length /(adhesion+1), grouplength, (index, times) => {
             let temparr = [];
             let from = cursor;
-            Loop.looptimes(grouplength, index => {
+            Loop.times(grouplength, index => {
                 temparr.push(arr[from++]);
             });
             cursor +=( grouplength-adhesion)

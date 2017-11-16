@@ -5,19 +5,50 @@ import { propanalysis } from './config/propanalysis';
 import { Loop } from './tool/loop';
 import Nnode from './nodle/Nnode';
 import Options from './config/options'
-class nodle {
+export default class nodle {
     ncode;
+    dom;
     nNode = new Nnode();
-    options:Options;
+    options: Options;
+    styles = [];
+    parent;
     constructor(ncode, options, parent) {
         this.ncode = ncode;
         this.rebuild();
         this.options = new Options(options);
         this.nLoad(this.ncode, this.nNode);
-        if (typeof parent == 'string') {
-            parent = document.querySelector(parent);
+        this.parent = parent;
+        if (typeof parent == 'string') { // 如果是sring字符串
+            let dom = document.querySelector(parent) as HTMLElement;
+            let pnode = new Nnode();
+            pnode.tag = parent;
+            pnode.dom = dom;
+            this.nNode.parent = pnode;
+            this.nNodeCreate(this.nNode, dom);
+        } else if (parent instanceof HTMLElement) {
+            let pnode = new Nnode();
+            pnode.tag = parent.localName;
+            pnode.dom = parent;
+            this.nNode.parent = pnode;
+            this.nNodeCreate(this.nNode, parent);
+        } else if (parent instanceof Nnode) {
+            this.nNode.parent = parent;
+            this.nNodeCreate(this.nNode, this.nNode.parent.dom);
         }
-        this.nNodeCreate(this.nNode, parent);
+        else{
+            this.nNodeCreate(this.nNode,parent);
+        }
+        
+        // this.stylepush();
+    }
+    stylepush() {
+        let nodlestyle = document.getElementById("nodlestyle");
+        if (!nodlestyle) {
+            nodlestyle = document.createElement('style');
+            nodlestyle.setAttribute('id', 'nodlestyle');
+            document.getElementsByTagName('head')[0].appendChild(nodlestyle);
+        }
+        nodlestyle.innerHTML = this.styles.join('');
     }
     /**
      * 用来重新构建传递进来的类zen coding语法字符串内容，将其整理为标准内容
@@ -44,7 +75,7 @@ class nodle {
     }
     /**
      * 同级关系解构
-     */ 
+     */
     samelevel(ncode) {
         let codepart = [];
         if (!regexps.hasSamelevel(ncode)) {
@@ -65,7 +96,7 @@ class nodle {
                     codepart.push(ncodepart);
                     break;
                 } else if (char == '(') {
-                    let ebIndex = strings.findEndBracket(ncode, i );
+                    let ebIndex = strings.findEndBracket(ncode, i);
                     let ncodepart = ncode.substring(cursor + 1, ebIndex); // 顺带去掉括号内容
                     codepart.push(ncodepart);
                     i = ebIndex;
@@ -83,7 +114,7 @@ class nodle {
     /**
      * 解构器,不存在兄弟关系的内容
      */
-    nSplitter(nNode:Nnode, ncode) {
+    nSplitter(nNode: Nnode, ncode) {
         if (ncode[0] == '(') {
             //查询末尾括号位置是否和
             let end = strings.findEndBracket(ncode, 0);
@@ -92,7 +123,7 @@ class nodle {
             }
         }
         if (!/[\(\+>]/.test(ncode)) {
-            propanalysis.parse(ncode,nNode);
+            propanalysis.parse(ncode, nNode);
             return nNode;
         }
         let len = ncode.length,
@@ -103,7 +134,7 @@ class nodle {
             let char = ncode[i];
             if (char == '>') {
                 // 左边归为父元素，
-                propanalysis.parse(ncode.substring(cursor, i),nNode);
+                propanalysis.parse(ncode.substring(cursor, i), nNode);
                 // 右边归为子元素
                 nNode.children.push(this.nLoad(ncode.substring(i + 1, len)))
                 return nNode;
@@ -119,47 +150,51 @@ class nodle {
     /**
      * 动态组装
      */
-    nNodeCreate(nNode:Nnode|Array<Nnode>, parent) {
+    nNodeCreate(nNode: Nnode | any, parent) {
         var cdom: HTMLElement;
         if (nNode instanceof Array) {
             for (var i = 0; i < nNode.length; i++) {
                 this.nNodeCreate(nNode[i], parent);
             }
-        } else if(nNode.size >0) {
+        } else if (nNode.tag) {
             // 装配options
-            this.options.find(nNode)
-
-
-            Loop.looptimes(nNode.size, () => {
+            this.options.find(nNode);
+            Loop.times(nNode.size, () => {
                 cdom = document.createElement(nNode.tag);
+                if(nNode.size == 1){
+                    cdom = nNode.dom;
+                }
                 if (nNode.classes.length > 0) {
                     cdom.classList.add(...nNode.classes);
                 }
                 if (nNode.id) {
-                    cdom.setAttribute('id', nNode.id)
+                    cdom.setAttribute('id', nNode.id);
                 }
-                Loop.keyloop(nNode.prop, (key, val) => {
+                Loop.keyloop(nNode.attr, (key, val) => {
                     cdom.setAttribute(key, val)
                 });
-                cdom.innerText = nNode.text;
                 if (parent instanceof HTMLElement) {
                     parent.appendChild(cdom);
                 }
+                if (nNode._text) { cdom.innerText = nNode.text; }
+                if (nNode._html) { cdom.innerHTML = nNode.html; }
+
                 if (nNode.children) {
-                    this.nNodeCreate(nNode.children, cdom || parent)
+                    nNode.children.forEach(n=>n.parent = nNode)
+                   return this.nNodeCreate(nNode.children, cdom || parent)
                 }
             });
-           
-        }else{
+        } else {
             if (nNode.children) {
-                this.nNodeCreate(nNode.children, cdom || parent)
+                nNode.children.forEach(n=>n.parent = nNode)
+                return this.nNodeCreate(nNode.children, cdom || parent)
             }
         }
     }
     /**
      * 附件工厂
      */
-    annex(){}
+    annex() { }
 }
 
 window['nodle'] = nodle;

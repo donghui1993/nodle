@@ -8,39 +8,63 @@ export default class Options {
         let byid = this.byId(nNode);
         let byclass = this.byClass(nNode);
         let byTag = this.byTag(nNode);
-        console.log(nNode.ncode,byid,byclass,byTag)
-        this.extends(byid,byclass,byTag)
+        let newnode =  this.extends([byTag,byclass,byid]);
+        return this.extendNode(newnode,nNode);
     }
     // 整合内容
     // 按照标签优先级，先是id，再是class 再是tag
     // 此处内联css样式不存在，如果有应用也不影响
-    extends(id,classes,tag){
-
+    extends(arr){
+        return arr.reduce((a,b)=>{
+            return this.extend(a,b);
+        })
     }
-    // 
-    extend(a,b){
-        
-        if(b == undefined){
-            return a;
+    extendNode(newnode,nNode:Nnode){
+        if(newnode == undefined){
+            return nNode;
         }
-        Object.keys(b).forEach((key)=>{
-            if(key == 'css'){
-                a.css = this.cssCopy(a.css,b.css);
-            }else if(key == 'classes'){
-                a.classes =  this.classesCopy(a.classes,b.classes)
-            }else if(key == ''){
-
+        Object.keys(newnode).forEach((key)=>{
+            let v = nNode[key];
+            if(key == 'classes'){
+                nNode.classes =  this.classesCopy(nNode.classes,newnode.classes)
+            }
+            if(v == undefined||v==""||v==1||( v instanceof Array && v.length == 0) || typeof v == 'object' && Object.keys(v).length == 0){
+                nNode[key] = newnode[key]
             }
         });
+        return nNode;
     }
-    
-    cssCopy(cssA,cssB){
-        Object.keys(cssB).forEach((css)=>{
-            cssA[css] = cssB[css];
+    // 混合两个对象的属性值
+    extend(a,b){
+        if(b == undefined){
+            return a;
+        }else if(a==undefined){
+            return b;
+        }
+        Object.keys(b).forEach((key)=>{
+            if(key == 'classes'){
+                a.classes =  this.classesCopy(a.classes,b.classes)
+            }else {
+                a[key] = this.mixin(a[key],b[key]);
+            }
         });
-        return cssA;
+        return a;
     }
-    classesCopy(classA,classB){
+    mixin(a,b){
+        if(b == undefined || b == "") {
+            return a;
+        }else if(a == undefined || a == ""){
+            return b
+        }
+        if(typeof b == "string"){
+            return b;
+        }
+        Object.keys(b).forEach((key)=>{
+            a[key] = b[key];
+        });
+        return a;
+    }
+    classesCopy(classA,classB){ // class单独去重操作
         classA = typeof classA == 'string'?classA.split(' '):classA;
         classB = typeof classB == 'string'?classB.split(' '):classB;
         if(classA instanceof Array && classB instanceof Array){ // 同时为array时才可以使用
@@ -51,9 +75,10 @@ export default class Options {
                 }
             });
             return _class;
-        }else{
-            console.error("classes为数组或者空格分隔的string字符串")
+        }else if( classB instanceof Array){
+            return classB;
         }
+        return classA;
     }
 
     byId(nNode:Nnode){
@@ -71,9 +96,12 @@ export default class Options {
                 options.push(this.options['.'+_class]);
             })
         }
-        return options.filter((el)=>el!=undefined).reduce((anode,bnode)=>{
-            return this.extend(anode,bnode);
-        });
+        options = options.filter((el)=>el!=undefined);
+        if(options.length>0)
+            return options.reduce((anode,bnode)=>{
+                return this.extend(anode,bnode);
+            });
+        return {};
     }
     byTag(nNode:Nnode){
         return this.options[nNode.tag]||{};

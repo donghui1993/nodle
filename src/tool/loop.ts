@@ -7,7 +7,7 @@ export namespace Loop {
             }
         }
     }
-    export function looptimes(times=0,fn:(index,times)=>any){
+    export function times(times=0,fn:(index,times)=>any){
         for(let i=0;i<times;i++){
             if (fn( i, times) === -1) {
                 return;

@@ -11,34 +11,46 @@
 
 <body>
     <script>
-        let container = new nodle('ul#container>li.list.name{sss}>.childlist{name}', { // TODO: options 未完成
-            'li':{
-                'css':{
-                    "font-size":'20px'
+        let child = new nodle('(span>div)+span#name',{
+            '#name':{
+                html:function(){
+                    if(this.parent.tag == 'span'){
+                        return "spantag"
+                    }else{
+                        return "dom"
+                    }
                 }
+            }
+        })
+        let container = new nodle('ul#container>li.list.name>.childlist', { // TODO: options 未完成
+            'ul':{
+                'style':{ "font-size":'20px' } // ul {  "font-size":'20px' }
+            },
+            '.name':{
+                'style':{'font-size':'20px'} // .name  {'font-size':'20px'}
             },
             '.list': {
                 // css 内容
-                'css': { "font-size": '15px' ,color:'blue'},
+                'style': { "font-size": '15px' ,color:'blue'}, // .list { "font-size": '15px' ; color:'blue';}
                 // class类
-                'classes':'name space',
-                // html的文本内容将会进行转义
-                'text': '这是内容', // 如果有子元素，该内容则不会填充
-                // 将会覆盖zencode 中的 child 内容
-                'html':undefined,
+                'classes':'space name',
+                // innerText
+                'html': child, // 如果有子元素，该内容则不会填充
                 // data属性的内容 -data-name:'xxxx'
                 'data': {},
                 // 额外的属性列表，如果有同名的将会覆盖
                 'attr': {},
                 // 数据值 将被填充的值的内容
-                'store': {},
+                'store': {name:1},
                 // 数据长度
                 "size":4
             },
             '.childlist':{
-                'size':4
+                'size':4,
+                // innerHTML
+                'html':function(){return "<div>这是html返回的值"+this.from+"</div>" },
             }
-        }, "body")
+        }, document.querySelector("body"))
     </script>
 </body>
 

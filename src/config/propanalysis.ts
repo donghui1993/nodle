@@ -9,7 +9,7 @@ export namespace propanalysis {
         // 分离一般属性
         nNode.classes = parseClass(ncode);
         nNode.id = parseId(ncode)[0];
-        nNode.prop = parseProp(ncode);
+        nNode.attr = parseAttr(ncode);
         nNode.text = parseText(ncode);
         nNode.tag = parseTag(ncode);
         nNode.size = parseSize(ncode);
@@ -31,7 +31,7 @@ export namespace propanalysis {
             return ncode.substring(from + 1, end);
         }).join('');
     }
-    function parseProp(ncode) {
+    function parseAttr(ncode) {
         let prop = {};
         let propsArray = strings.findCharIndex(ncode, /\[/).map((from) => {
             let end = strings.findEndBracket(ncode, from, '[', ']');
