@@ -1,15 +1,34 @@
 import Nnode from '../nodle/Nnode'
 export default class Options {
     options;
-    constructor(options){
+    styles=[];
+    constructor(options={}){
         this.options = options;
+        // 首先过滤一下style值
+        this.styleFilter()
     }
     find(nNode:Nnode){
         let byid = this.byId(nNode);
         let byclass = this.byClass(nNode);
         let byTag = this.byTag(nNode);
         let newnode =  this.extends([byTag,byclass,byid]);
-        return this.extendNode(newnode,nNode);
+        this.extendNode(newnode,nNode);
+    }
+    styleFilter(){
+        Object.keys(this.options).forEach((key)=>{
+            let style = this.options[key].style||"";
+            if((style).toString() == '[object Object]'){
+                let stylearr = [];
+                Object.keys(style).forEach((key)=>{
+                    let nkey = key.replace(/[A-Z]/g,(c)=>{
+                        return "-"+c.toLowerCase();
+                    });
+                    stylearr.push(nkey + ":" + style[key]);
+                });
+                this.styles.push( [key] +" {" +stylearr.join(';') + " }");
+                delete this.options.style;
+            }
+        })
     }
     // 整合内容
     // 按照标签优先级，先是id，再是class 再是tag
@@ -44,7 +63,7 @@ export default class Options {
         Object.keys(b).forEach((key)=>{
             if(key == 'classes'){
                 a.classes =  this.classesCopy(a.classes,b.classes)
-            }else {
+            }else{
                 a[key] = this.mixin(a[key],b[key]);
             }
         });

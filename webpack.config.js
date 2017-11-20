@@ -22,6 +22,11 @@ module.exports = {
       options: {
         evtool: 'source-map'
       }
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        warnings: false
+      }
     })
   ]
 }

@@ -1,4 +1,3 @@
-
 import { Loop } from "../tool/loop";
 import { Arrays } from "../tool/arrays";
 import { strings } from "../tool/strings";
@@ -25,16 +24,16 @@ export default class CharacterAnalysis {
         // TODO: 如何将括号和元素组合变为正确的父子级关系
         //this.movePart();
 
-        this.plusWithParentheses();
-        this.moreParentheses();
-        this.atStartParenthes();
+        this.plusWithBrackets();
+        this.moreBrackets();
+        this.atStartBrackets();
 
     }
 
     /**
      * 如果第一个字符是 ( 则需要去掉该部分内容
      */
-    atStartParenthes() {
+    atStartBrackets() {
         if (this.zencode.startsWith('(')) {
             let end = strings.findEndBracket(this.zencode);
             if (this.zencode[end + 1] == "+") {//如果该值为 + 号，则说明该区域内容为同级元素，不需要去除
@@ -45,13 +44,13 @@ export default class CharacterAnalysis {
                 str += this.zencode.substr(end + 1);
                 this.zencode = str;
             }
-            return this.atStartParenthes();
+            return this.atStartBrackets();
         }
     }
     /**
      * 用来去除同级行为 +(div) 的多余括号 --> +div
      */
-    plusWithParentheses() {
+    plusWithBrackets() {
         this.zencode = this.zencode.replace(/\+\(([^\)]+)\)/g, "+$1")
     }
 
@@ -141,7 +140,7 @@ export default class CharacterAnalysis {
     /**
      * 用来替换多余的括号嵌套 (((span))) --> (span)
      */
-    moreParentheses() {
+    moreBrackets() {
         // 查找多括号的位置
         let match = /\({2,}/.exec(this.zencode);
         if (match) {
@@ -155,7 +154,7 @@ export default class CharacterAnalysis {
                 }
                 this.zencode = str
                 //尾递归替换迭代
-                return this.moreParentheses();
+                return this.moreBrackets();
             }
         }
     }
@@ -170,7 +169,7 @@ export default class CharacterAnalysis {
     /**
      * 将 >()替换出来为 
      */
-    gtParenthese() {
+    gtBracketse() {
 
     }
 }

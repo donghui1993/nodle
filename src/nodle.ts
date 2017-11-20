@@ -10,11 +10,10 @@ export default class nodle {
     dom;
     nNode = new Nnode();
     options: Options;
-    styles = [];
     parent;
     constructor(ncode, options, parent) {
         this.ncode = ncode;
-        this.rebuild();
+        this.fixed();
         this.options = new Options(options);
         this.nLoad(this.ncode, this.nNode);
         this.parent = parent;
@@ -39,7 +38,7 @@ export default class nodle {
             this.nNodeCreate(this.nNode,parent);
         }
         
-        // this.stylepush();
+        this.stylepush();
     }
     stylepush() {
         let nodlestyle = document.getElementById("nodlestyle");
@@ -48,12 +47,12 @@ export default class nodle {
             nodlestyle.setAttribute('id', 'nodlestyle');
             document.getElementsByTagName('head')[0].appendChild(nodlestyle);
         }
-        nodlestyle.innerHTML = this.styles.join('');
+        nodlestyle.innerHTML += "\n"+this.options.styles.join('\n')+"\n";
     }
     /**
      * 用来重新构建传递进来的类zen coding语法字符串内容，将其整理为标准内容
      */
-    rebuild() {
+    fixed() {
         this.ncode = CharacterAnalysis.analyze(this.ncode);
     }
     /**
@@ -159,6 +158,8 @@ export default class nodle {
         } else if (nNode.tag) {
             // 装配options
             this.options.find(nNode);
+            // 少一个dom内勾
+            // 为了让页面上的dom数据和本地的数据匹配起来，需要一个内容关联内勾
             Loop.times(nNode.size, () => {
                 cdom = document.createElement(nNode.tag);
                 if(nNode.size == 1){
