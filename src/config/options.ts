@@ -75,7 +75,7 @@ export default class Options {
         }else if(a == undefined || a == ""){
             return b
         }
-        if(typeof b == "string"){
+        if(typeof b == "string" || typeof a == 'string'){
             return b;
         }
         Object.keys(b).forEach((key)=>{

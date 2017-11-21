@@ -47,7 +47,7 @@ export namespace propanalysis {
         return prop;
     }
     function parseTag(ncode) {
-        return (/^[a-zA-Z]\w+/.exec(ncode) || [])[0] || "div";
+        return (/^[a-zA-Z]\w*/.exec(ncode) || [])[0] || "div";
     }
     function parseSize(ncode) {
         return parseInt(((/\*[0-9]/.exec(ncode) || [])[0] || "*1").slice(1));

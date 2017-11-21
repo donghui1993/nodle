@@ -14,9 +14,7 @@ export default class Nnode {
     // dom标签名
     _tag: string
     set tag(_tag){
-        if(!this._tag){
-            this._tag = _tag;
-        }
+        this._tag = _tag;
         if(!this.dom){
             this.dom = document.createElement(_tag);
         }

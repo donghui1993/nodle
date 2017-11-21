@@ -10,36 +10,100 @@
 </head>
 
 <body>
+        
     <script>
-        let container = new nodle('ul#container>li.name.list>.childlist', { // TODO: options 未完成
-            'ul':{ // 为什么不按照嵌套顺序布局options呢？
-                style:{ 
-                    "font-size":'20px'
-                } // ul {  "font-size":'20px' }
+        new nodle('.wrong_info>(p#wrongpano>span.line+span.content+span.line)+(.btn_w_down>a.btn>span.img)', {
+            '.btn_w_down': {
+                style: {
+                    bottom: "-50px",
+                    right: "32%",
+                    zIndex: 10001,
+                    position: 'fixed',
+                    float: 'right',
+                    paddingRight: '4.5%',
+                    transition: "bottom ease .3s",
+                    cursor: "pointer",
+                }
             },
-  
-            '.list': {
-                // css 内容
-                'style': { "fontSize": '20px' ,color:'blue'}, // .list { "font-size": '15px' ; color:'blue';}
-                // class类
-                'classes':'space name',
-                // innerText
-                'html':"", 
-                // data属性的内容 -data-name:'xxxx'
-                'data': {},
-                // 额外的属性列表，如果有同名的将会覆盖
-                'attr': {},
-                // 数据值 将被填充的值的内容
-                'store': {name:1},
+            '.btn': {
+                style: {
+                    background: '#434343',
+                    width: '100px',
+                    height: '100px',
+                    borderRadius: ' 50px',
+                    marginTop: '1px',
+                    transition: ' background-color ease .3s',
+                    display: 'block',
+                }
             },
-            '.name':{
-                'style':{'font-size':'30px'}, // .name  {'font-size':'20px'}
+            '.img': {
+                style: {
+                    marginTop: '23px',
+                    transform: "rotate(180deg)",
+                    marginLeft: "38px",
+                    float: 'left',
+                    width: '23px',
+                    height: '12px',
+                    background: ' url(side-icon02.png)',
+                },
+                html:" "
             },
-            '.childlist':{
-                // innerHTML
-                'html':function(){return "<div>这是html返回的值"+this.from+"</div>" },
+            '.wrong_info': {
+                style: {
+                    position: "fixed",
+                    bottom: 0,
+                    width: "100%",
+                    maxWidth: "720px",
+                    height: "50%",
+                    background: "#000",
+                    opacity: .8,
+                    zIndex: 999,
+                    overflowY: "scroll"
+                }
+            },
+            "#wrongpano": {
+                style: {
+                    position: "relative",
+                    padding: "10px 3%",
+                    color: "#fff",
+                    width: "100%",
+                    zIndex: 10000,
+                    boxSizing: "border-box",
+                    overflowY: "scroll",
+                }
+            },
+            'span': {
+                style: {
+                    "text-align": "center"
+                }
+            },
+            '.line': {
+                style: {
+                    display: "block",
+                },
+                html: "----------"
+            },
+            ".content": {
+                html: new nodle('.header+span.next+span.then', {
+                    '.header': {
+                        html: "hao24 - wap console",
+                    },
+                    '.next': {
+                        html: "Powered By "
+                    },
+                    '.then': {
+                        html: "@hao24.com",
+                        style: {
+                            color: "#1badd0",
+                            textShadow: " 0 0 2px #045f44"
+                        }
+                    }
+                }),
+                style: {
+                    display: "block",
+                }
             }
-        }, document.querySelector("body"))
+        }, 'body')
     </script>
 </body>
 
